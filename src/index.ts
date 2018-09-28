@@ -13,19 +13,29 @@ interface UserIndoorLocation {
     indoorLocation: IndoorLocation;
 }
 
+interface SocketQuery {
+    userId: string,
+    bbox?: Array<number>,
+    floorbox?: Array<number>
+}
+
 class SocketIndoorLocationProvider {
     protected connection: any;
     protected listeners: {(err: any, p: UserIndoorLocation): void}[];
 
-    constructor(socketUrl: string, userId: string) {
+    constructor(socketUrl: string, query: string|SocketQuery) {
         let self = this;
+
+        if (typeof query === 'string') {
+            query = {
+                userId: query
+            };
+        }
 
         self.listeners = [];
         self.connection = io(socketUrl, {
             autoConnect: false,
-            query: {
-                userId: userId
-            }
+            query: query
         });
 
         const toAll = function (err: any, userIndoorLocation: any): void {
